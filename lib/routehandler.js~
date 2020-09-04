@@ -1,71 +1,33 @@
-const fs = require('fs');
-const path = require('path');
 const fileUtil = require('./fileUtil');
 const routeHandler = {};
 const helper = require('./helper');
 
-const updateBookAmount = (updateType, id, callback) => {
+const updateBookAmount = (updateType, id, callback) {
     const filePath = path.join("books", id + '.json');
-    fs.open(filePath, 'r+', (err, fd) => {
-        console.log("FD", fd);
-        if (!err) {
-            fs.readFile(fd, 'utf-8', (err, data) => {
-                if (!err) {
-                    const parsedData = JSON.parse(data);
-                    if (updateType == 'inc') {
-                        parsedData.amount = parsedData.amount + 1;
-                    } else if (updateType == 'dec') {
-                        if (parsedData.amount == 0) {
-                            callback({message: 'book not available'});
-                        } else {
-                            parsedData.amount = parsedData.amount - 1;
-                        }
-                    }
-                    
-                    // write with filename instead of file descriptor to be assured of total rewrite
-                    fs.writeFile(filePath, JSON.stringify(parsedData), err => {
-                        if (!err) {
-                            fs.close(fd, err => {
-                                if (!err) {
-                                    callback(false);   
-                                } else {
-                                    callback(err);
-                                }
-                            });
-                        } else {
-                            callback(err);
-                        }
-                    });
-                } else {
-                    callback(err);
+    fs.open(filePath, 'wx+', (err, fd) => {
+        fs.readFile(fd, 'utf-8', (err, data) => {
+            if (!err) {
+                const parsedData = JSON.parse(data);
+                if (updateType == 'inc') {
+                    parsedData.amount = parsedData.amount + 1;
+                } else if (updateType == 'dec') {
+                    parsedData.amount = parsedData.amount - 1;
                 }
-    
-            });
-        } else {
-            callback(err);
-        }
+                
+                fs.writeFile(fd, JSON.stringify(parsedData), err => {
+                    if (!err) {
+                        callback(false)
+                    } else {
+                        callback(err);
+                    }
+                });
+            } else {
+                callback(err);
+            }
+
+        });
     });
 }
-
-const findUserByToken = (token) => {
-    const dir = 'users';
-    const files = fs.readdirSync(dir);
-    const expectedValue = {userfile: null, data: null};
-    files.forEach(file => {
-        const filePath = path.join(dir, file);
-        const fileDescriptor = fs.openSync(filePath, 'r+');
-        const data = fs.readFileSync(fileDescriptor, 'utf-8');
-        const parsedData = JSON.parse(data);
-        if (parsedData.secureId == token) {
-            expectedValue.userfile = file;
-            expectedValue.data = parsedData;
-        }
-        
-    });
-    return expectedValue;
-};
-
-const addBorrowedBookToUser = (token, bookId) => {};
 
 routeHandler.Books = (data, callback) => {
     const acceptableHeaders = ["post", "get", "put", "delete"];
@@ -89,46 +51,27 @@ routeHandler._borrowBook = {};
 
 routeHandler._borrowBook.post = (data, callback) => {
     const token = typeof data.payload.token == 'string' && data.payload.token.length == 256 ? data.payload.token : null;
-    const bookId = typeof data.payload.book == 'string' && data.payload.book ? data.payload.book : null;
-    console.log(token, bookId);
+    const bookId = typeof data.payload.book == 'string' && !isNaN(parseInt(data.payload.amount)) ? data.payload.book : null;
     
     if (token, bookId) {
         fs.readdir('users', (err, files) => {
             files.forEach(file => {
-                console.log("ForEach being called");
                 fs.readFile(path.join('users', file), 'utf-8', (err, data) => {
                     const readData = JSON.parse(data);
                     if (readData.secureId == token) {
                         // Decrement book count and update book.
                         updateBookAmount('dec', bookId, err => {
                             if (!err) {
-                                const user = findUserByToken(token);
-                                if (user.data && user.userfile) {
-                                    if (!user.data.book) {
-                                        user.data.book = bookId;
-                                        fs.open(path.join('users', user.userfile), 'r+', (err, fd) => {
-                                            if (!err) {
-                                                callback(200, {message: 'book successfully borrowed'});
-                                            } else {
-                                                callback(500, {message: err});
-                                            }
-                                        });
-                                    } else {
-                                        callback(400, {message: `user already has book with id: ${user.data.book}`});
-                                    }
-                                } else {
-                                    callback(400, {message: 'error finding user'});
-                                }
+                                // resume here
                             } else {
-                                callback(500, {message: err});
+                                callback(405, {message: err});
                             }
                         });
+                        // Add borrowed book to user.
                     }
                 });
             });
         });
-    } else {
-        callback(400, {message: 'incomplete parameters'});
     }
 }
 
@@ -143,7 +86,6 @@ routeHandler._books.post = (data, callback) => {
     var author = typeof(data.payload.author) === 'string' && data.payload.author.trim().length > 0 ? data.payload.author : false;
     var publisher = typeof(data.payload.publisher) === 'string' && data.payload.publisher.trim().length > 0 ? data.payload.publisher : false;
     var amount = typeof data.payload.amount == 'string' && !isNaN(parseInt(data.payload.amount)) ? data.payload.amount : false;
-    var admin = typeof data.payload.admin == 'string' // continue
     console.log(name, price, author, publisher, amount);
     if(name && price && author && publisher){
         console.log("Handling book posting valid values");
@@ -225,7 +167,7 @@ routeHandler.User = (data, callback) => {
 routeHandler._user = {};
 routeHandler._createUser = {};
 
-// create a user
+// create an admin
 routeHandler._createUser.post = (data, callback) => {
     if (data.payload.username && data.payload.password, data.payload.isAdmin) {
         fileUtil.create("users", data.payload.username, {secureId: null, ...data.payload}, err => {
@@ -238,7 +180,7 @@ routeHandler._createUser.post = (data, callback) => {
     }
 };
 
-// Sign in a user
+// Sign in an admin
 routeHandler._user.post = (data, callback) => {
     if (data.payload.username && data.payload.password) {
         fileUtil.read("users", data.payload.username, (err, obj) => {

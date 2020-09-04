@@ -22,8 +22,4 @@ helper.formatObject = (oldObject = {}, newObject ={}) => {
     return {...oldObject, ...tempObj};
 }
 
-helper.stripJSONExt = (jsonFile) => {
-    return jsonFile.substring(0, jsonFile.length - 5);
-}
-
 module.exports = helper;
