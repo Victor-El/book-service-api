@@ -37,7 +37,7 @@ parameters: <br>
 &nbsp; password: &lt;string>
 
 ##### Request with httpie
-&nbsp; http http://localhost:8080/user username=vic password=pass
+&nbsp; http -f POST http://localhost:8080/user username=vic password=pass
 
 ##### Response:
 > HTTP/1.1 200 OK <br>
@@ -90,7 +90,7 @@ parameters: <br>
 &nbsp; book &lt;string> <br>
 
 ##### Request with httpie
-&nbsp; http http://localhost:8080/books/borrow book=cwm4s3pgj2k05q6djc1mifjvu2oo8m \
+&nbsp; http -f POST http://localhost:8080/books/borrow \ book=cwm4s3pgj2k05q6djc1mifjvu2oo8m 
 token=owomq9mbfn3xtjdlpvdjfv3ejcfvxrqgo6x5ry3e4zdettid8iapytxjguxsc1dlxmtjl5zjo99vsozhbbfsb3iznijryx63t92l070zyt1ntpsd0yvn279r3550yfwodg4a9q2e36xtzym2v3r3h7ud825pqqmmungzp2sd848rcxhra7u41kexxh6dk0b6l21vh07awqvdidzl6p6syqzkabl0nrqju9jmnqyxxq6ht1fojdh0di1qfjkrih83
 
 where: <br>
@@ -107,6 +107,60 @@ where: <br>
 > &nbsp; { <br>
 > &nbsp; &nbsp;    "message": "book successfully borrowed" <br>
 > &nbsp; }
+
+#### Add Book
+
+endpoint: books <br>
+http verb: POST <br>
+parameters: <br>
+&nbsp; name &lt;string> <br>
+&nbsp; price &lt;float> <br>
+&nbsp; author &lt;string> <br>
+&nbsp; publisher &lt;string> <br>
+&nbsp; amount &lt;integer> <br>
+&nbsp; token &lt;string> <br>
+
+##### Request with httpie
+&nbsp; http -f POST http://localhost:8080/books name="Half of a yellow sun" author="Chimamanda Adiche" price=99.99 publisher=Appress amount=50 token=cwm4s3pgj2k05q6djc1mifjvu2oo8m \
+token=owomq9mbfn3xtjdlpvdjfv3ejcfvxrqgo6x5ry3e4zdettid8iapytxjguxsc1dlxmtjl5zjo99vsozhbbfsb3iznijryx63t92l070zyt1ntpsd0yvn279r3550yfwodg4a9q2e36xtzym2v3r3h7ud825pqqmmungzp2sd848rcxhra7u41kexxh6dk0b6l21vh07awqvdidzl6p6syqzkabl0nrqju9jmnqyxxq6ht1fojdh0di1qfjkrih83
+
+ps: Only admin users can add books.
+
+##### Response: 
+
+> &nbsp; HTTP/1.1 200 OK <br>
+> &nbsp; Connection: keep-alive <br>
+> &nbsp; Content-type: application/json <br>
+> &nbsp; Date: Mon, 07 Sep 2020 11:57:12 GMT <br>
+> &nbsp; Transfer-Encoding: chunked <br>
+
+> &nbsp; { <br>
+> &nbsp; &nbsp;    "data": null, <br>
+> &nbsp; &nbsp;    "message": "book added successfully" <br>
+> &nbsp; }
+
+#### Return Book
+
+endpoint: books/return <br>
+http verb: POST <br>
+parameters: <br>
+&nbsp; token &lt;string> <br>
+
+##### Request with httpie
+&nbsp; http http://localhost:8080/books/return token=owomq9mbfn3xtjdlpvdjfv3ejcfvxrqgo6x5ry3e4zdettid8iapytxjguxsc1dlxmtjl5zjo99vsozhbbfsb3iznijryx63t92l070zyt1ntpsd0yvn279r3550yfwodg4a9q2e36xtzym2v3r3h7ud825pqqmmungzp2sd848rcxhra7u41kexxh6dk0b6l21vh07awqvdidzl6p6syqzkabl0nrqju9jmnqyxxq6ht1fojdh0di1qfjkrih83
+
+##### Response:
+
+> &nbsp; HTTP/1.1 200 OK <br>
+> &nbsp; Connection: keep-alive <br>
+> &nbsp; Content-type: application/json <br>
+> &nbsp; Date: Mon, 07 Sep 2020 12:48:50 GMT <br>
+> &nbsp; Transfer-Encoding: chunked <br>
+
+> &nbsp; { <br>
+> &nbsp; &nbsp;    "message": "book returned successfully" <br>
+> &nbsp; }
+
 
 
 
