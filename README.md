@@ -33,7 +33,7 @@ parameters: <br>
 endpoint: user <br>
 http verb: POST <br>
 parameters: <br>
-&nbsp; username: &lt;string>
+&nbsp; username: &lt;string> <br>
 &nbsp; password: &lt;string>
 
 ##### Request with httpie
@@ -82,6 +82,32 @@ parameters: None
 > } <br>
 
 #### Borrow Book
+
+endpoint: books/borrow <br>
+http verb: POST <br>
+parameters: <br>
+&nbsp; token &lt;string> <br>
+&nbsp; book &lt;string> <br>
+
+##### Request with httpie
+&nbsp; http http://localhost:8080/books/borrow book=cwm4s3pgj2k05q6djc1mifjvu2oo8m \
+token=owomq9mbfn3xtjdlpvdjfv3ejcfvxrqgo6x5ry3e4zdettid8iapytxjguxsc1dlxmtjl5zjo99vsozhbbfsb3iznijryx63t92l070zyt1ntpsd0yvn279r3550yfwodg4a9q2e36xtzym2v3r3h7ud825pqqmmungzp2sd848rcxhra7u41kexxh6dk0b6l21vh07awqvdidzl6p6syqzkabl0nrqju9jmnqyxxq6ht1fojdh0di1qfjkrih83
+
+where: <br>
+ &nbsp; book = id of a book. <br>
+ &nbsp; token = secureId returned after signing in.
+
+##### Response:
+> &nbsp; HTTP/1.1 200 OK <br>
+> &nbsp; Connection: keep-alive <br>
+> &nbsp; Content-type: application/json <br>
+> &nbsp; Date: Mon, 07 Sep 2020 11:30:31 GMT <br>
+> &nbsp; Transfer-Encoding: chunked <br>
+
+> &nbsp; { <br>
+> &nbsp; &nbsp;    "message": "book successfully borrowed" <br>
+> &nbsp; }
+
 
 
 
