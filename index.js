@@ -70,6 +70,7 @@ const router = {
     ping : routeHandler.ping,
     books : routeHandler.Books,
     'books/borrow': routeHandler.BorrowBook,
+    'books/return': routeHandler.ReturnBook,
     user: routeHandler.User,
     'users/create': routeHandler.CreateUser,
     notfound : routeHandler.notfound
